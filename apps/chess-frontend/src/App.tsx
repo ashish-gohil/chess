@@ -1,5 +1,14 @@
 function App() {
-  return <h1 className="text-3xl font-bold underline">Hello world!</h1>;
+  const handlePlayEvent = () => {
+    const socket = new WebSocket("ws://localhost:8080");
+    console.log(socket);
+  };
+  return (
+    <div>
+      <p>Click to play</p>
+      <button onClick={handlePlayEvent}>Play</button>
+    </div>
+  );
 }
 
 export default App;
