@@ -1,6 +1,15 @@
 import { randomUUID } from "crypto";
 import { WebSocket } from "ws";
-import { GAME_ALERT, GAME_ERROR, GAME_NOT_FOUND, INIT_GAME } from "./message";
+import { Chess } from "chess.js";
+import {
+  GAME_ADDED,
+  GAME_ALERT,
+  GAME_ERROR,
+  GAME_JOINED,
+  GAME_NOT_FOUND,
+  INIT_GAME,
+  MOVE,
+} from "./message";
 
 // interface UserInterface {
 //   socket: WebSocket;
@@ -10,16 +19,23 @@ interface Game {
   id: string;
   whiteUser: User | null;
   blackUser: User | null;
-  moves: string[];
-  currentBoard: string;
+  board: Chess;
 }
 
 export class User {
   public id: string | null;
   public socket: WebSocket;
-  constructor(socket: WebSocket) {
+  public isGuest: boolean;
+  // public gameId: string | null;
+  constructor(
+    socket: WebSocket,
+    // gameId: string | null = null
+    isGuest: boolean = false
+  ) {
     this.id = randomUUID();
     this.socket = socket;
+    this.isGuest = isGuest;
+    // this.gameId = gameId;
   }
 }
 
@@ -41,23 +57,35 @@ export class GameManager {
     }
     return this.instance;
   }
+
   addUser(socket: WebSocket) {
     const user = new User(socket);
     this.users.push(user);
     this.addHandler(user);
   }
+
   removeUser(socket: WebSocket) {
     if (this.users.find((user) => user.socket === socket)) {
       this.users = this.users.filter((user) => user.socket !== socket);
     }
     this.games.find((game) => game);
   }
+
   addHandler(user: User) {
     user.socket.on("message", (data) => {
       const message = JSON.parse(data.toString());
       if (message.type === INIT_GAME) {
         if (!this.pendingGameId) {
           this.addNewGame(user);
+          user.socket.send(
+            JSON.stringify({
+              type: GAME_ADDED,
+              payload: {
+                message: "New Game is Added",
+                gameId: this.pendingGameId,
+              },
+            })
+          );
         } else {
           const pendingGame = this.games.find(
             (game) => game.id === this.pendingGameId
@@ -74,8 +102,37 @@ export class GameManager {
                 },
               })
             );
+          } else {
+            this.games = this.games.map((game) =>
+              game.id === this.pendingGameId
+                ? { ...game, blackUser: user }
+                : game
+            );
+            this.pendingGameId = null;
+            user.socket.send(
+              JSON.stringify({
+                type: GAME_JOINED,
+                payload: { message: "Game is joined", gameId: pendingGame?.id },
+              })
+            );
           }
         }
+      }
+      if (message.type === MOVE) {
+        const curGame = this.games.find(
+          (game) => game.blackUser === user || game.whiteUser === user
+        );
+        console.log(curGame);
+        if (!curGame) {
+          user.socket.send(
+            JSON.stringify({
+              type: GAME_NOT_FOUND,
+              payload: { message: "User is not playing any game?" },
+            })
+          );
+        }
+        curGame?.board.move({ from: message.from, to: message.to });
+        console.log(curGame?.board.fen());
       }
     });
   }
@@ -85,8 +142,7 @@ export class GameManager {
       id: randomUUID(),
       whiteUser: user,
       blackUser: null,
-      moves: [],
-      currentBoard: "",
+      board: new Chess(),
     };
     this.games.push(newGame);
     this.pendingGameId = newGame.id;
