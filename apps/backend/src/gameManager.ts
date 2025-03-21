@@ -23,6 +23,7 @@ interface Game {
 }
 
 export class User {
+  // this shows howmany users are currently online
   public id: string | null;
   public socket: WebSocket;
   public isGuest: boolean;
@@ -61,6 +62,7 @@ export class GameManager {
   addUser(socket: WebSocket) {
     const user = new User(socket);
     this.users.push(user);
+    console.log(this.users);
     this.addHandler(user);
   }
 
@@ -73,6 +75,8 @@ export class GameManager {
 
   addHandler(user: User) {
     user.socket.on("message", (data) => {
+      console.log("games");
+      console.log(this.games);
       const message = JSON.parse(data.toString());
       if (message.type === INIT_GAME) {
         if (!this.pendingGameId) {
@@ -122,7 +126,7 @@ export class GameManager {
         const curGame = this.games.find(
           (game) => game.blackUser === user || game.whiteUser === user
         );
-        console.log(curGame);
+        // console.log(curGame);
         if (!curGame) {
           user.socket.send(
             JSON.stringify({
@@ -131,8 +135,33 @@ export class GameManager {
             })
           );
         }
-        curGame?.board.move({ from: message.from, to: message.to });
-        console.log(curGame?.board.fen());
+        try {
+          const move = curGame?.board.move({
+            from: message.from,
+            to: message.to,
+          });
+
+          console.log(curGame?.board.fen());
+          if (move === null) {
+            console.log("Invalid move");
+          } else {
+            console.log("Move made:", move);
+
+            if (curGame?.board?.isCheckmate()) {
+              console.log("Checkmate! Game over.");
+            } else if (curGame?.board?.isCheck()) {
+              console.log("Check! The opponent is in check.");
+            } else if (curGame?.board?.isStalemate()) {
+              console.log("Stalemate. Draw!");
+            } else if (curGame?.board?.isGameOver()) {
+              console.log("Game over (not checkmate or stalemate).");
+            } else {
+              console.log("Game continues.");
+            }
+          }
+        } catch (err: any) {
+          console.log(err.toString());
+        }
       }
     });
   }
