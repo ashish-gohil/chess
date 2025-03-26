@@ -2,13 +2,19 @@ import { randomUUID } from "crypto";
 import { WebSocket } from "ws";
 import { Chess } from "chess.js";
 import {
+  CHECK,
+  CHECKMATE,
   GAME_ADDED,
   GAME_ALERT,
   GAME_ERROR,
   GAME_JOINED,
   GAME_NOT_FOUND,
+  GAME_OVER,
   INIT_GAME,
+  INVALID_MOVE,
   MOVE,
+  MOVE_SUCCESS,
+  STALEMATE,
 } from "./message";
 
 // interface UserInterface {
@@ -149,18 +155,63 @@ export class GameManager {
 
             if (curGame?.board?.isCheckmate()) {
               console.log("Checkmate! Game over.");
+              user.socket.send(
+                JSON.stringify({
+                  type: CHECKMATE,
+                  payload: {
+                    message: "Move is Invalid",
+                  },
+                })
+              );
             } else if (curGame?.board?.isCheck()) {
               console.log("Check! The opponent is in check.");
+              user.socket.send(
+                JSON.stringify({
+                  type: CHECK,
+                  payload: {
+                    message: "The opponent is in check.",
+                  },
+                })
+              );
             } else if (curGame?.board?.isStalemate()) {
               console.log("Stalemate. Draw!");
+              user.socket.send(
+                JSON.stringify({
+                  type: STALEMATE,
+                  payload: {
+                    message: "Stalemate. Draw!",
+                  },
+                })
+              );
             } else if (curGame?.board?.isGameOver()) {
               console.log("Game over (not checkmate or stalemate).");
+              user.socket.send(
+                JSON.stringify({
+                  type: GAME_OVER,
+                  payload: {
+                    message: "Game over (not checkmate or stalemate).",
+                  },
+                })
+              );
             } else {
               console.log("Game continues.");
+              user.socket.send(
+                JSON.stringify({
+                  type: MOVE_SUCCESS,
+                  payload: {
+                    message: "Move Success!",
+                  },
+                })
+              );
             }
           }
         } catch (err: any) {
-          console.log(err.toString());
+          user.socket.send(
+            JSON.stringify({
+              type: INVALID_MOVE,
+              payload: { message: "Move is Invalid", error: err.toString() },
+            })
+          );
         }
       }
     });
