@@ -1,22 +1,29 @@
 "use client";
-import useWebSocket from "@/customHooks/useWebsocket";
+import { redirect } from "next/navigation";
+import { useContext } from "react";
+import SocketContext from "@/context/socketContext";
 
 export default function Home() {
-  const { messages, sendMessage } = useWebSocket("ws://localhost:8080");
+  const [messages, userSocket] = useContext(SocketContext);
+  console.log(messages);
+  console.log(userSocket);
+
   const initGame = () => {
-    sendMessage(
-      JSON.stringify({
-        type: "init_game",
-      })
-    );
+    redirect("/random");
   };
   return (
     <div className="flex h-screen">
       <div className="bg-gray-700 w-[50%]">Image</div>
-      <div className="w-[50%]">
-        <button onClick={initGame}>Play Game</button>
+      <div className="w-[50%] flex  justify-center items-center">
+        <button onClick={initGame} className="p-2 bg-slate-700">
+          Play Game
+        </button>
       </div>
-      <div>{messages}</div>
+      <div>
+        {messages.map((msg, idx) => (
+          <div key={idx}>{msg}</div>
+        ))}
+      </div>
     </div>
   );
 }

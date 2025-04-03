@@ -68,7 +68,7 @@ export class GameManager {
   addUser(socket: WebSocket) {
     const user = new User(socket);
     this.users.push(user);
-    console.log(this.users);
+    console.log(this.users.length);
     this.addHandler(user);
   }
 
