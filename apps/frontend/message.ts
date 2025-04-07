@@ -11,3 +11,5 @@ export const GAME_OVER = "game_over";
 export const STALEMATE = "stalemate";
 export const CHECK = "check";
 export const MOVE_SUCCESS = "move_success";
+export const WHITE_USER = "w";
+export const BLACK_USER = "b";

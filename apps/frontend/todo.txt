@@ -1,0 +1,11 @@
+  //handle how to send moves to backend correctly for both user(b+w)
+  //handle how to show moves after receiving response of move from backend
+  //do some frontend checkes so user can not move peice if it is not valid
+  //introduce database to store game moves and games played by certain users with all meta data
+  //show results who win and who lose
+  //show all previous moves in right section
+  //add Authentications and then only user can play
+  //show chess board based on type of user(black user should see black pieces in bottom same for white)
+  //show possible moves in UI when square is selected
+  //improve UI with animations
+  //keep all chess messages to in pakage for DRY, and use same in frontend as well

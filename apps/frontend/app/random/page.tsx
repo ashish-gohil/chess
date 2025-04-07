@@ -1,6 +1,7 @@
 "use client";
 import SocketContext from "@/context/socketContext";
 import { useContext, useEffect } from "react";
+import ChessBoard from "../components/ChessBoard";
 
 const RandomGame = () => {
   const [messages, userSocket] = useContext(SocketContext);
@@ -13,11 +14,11 @@ const RandomGame = () => {
   }, [userSocket]);
   console.log(messages);
   return (
-    <div>
-      <div>Random Game Page</div>
-      {messages.map((msg, idx) => (
-        <div key={idx}>{msg.toString()}</div>
-      ))}
+    <div className="flex w-full">
+      <div className="w-[70%] flex justify-center items-center min-h-screen bg-gray-100">
+        <ChessBoard />
+      </div>
+      <div>Play button/moves</div>
     </div>
   );
 };
