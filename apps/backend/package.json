@@ -1,20 +1,19 @@
 {
-  "name": "ws",
+  "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -b",
-    "dev": "tsc -b && node ./dist/index.js"
+    "dev": "tsc -b && node dist/index.js",
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/chess.js": "^0.13.7",
-    "@types/ws": "^8.5.13",
-    "chess.js": "^1.0.0-beta.8",
-    "ws": "^8.18.0"
+    "@types/express": "^5.0.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
   }
 }
