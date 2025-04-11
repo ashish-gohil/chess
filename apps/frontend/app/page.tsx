@@ -4,6 +4,8 @@ import SocketContext from "@/context/socketContext";
 import Image from "next/image";
 import chessImage from "./chess.jpg";
 import { useRouter } from "next/navigation";
+import { signIn, signOut, useSession } from "next-auth/react";
+// import { authOptions } from "./api/auth/[...nextauth]/route";s
 
 export default function Home() {
   //first check weather user is logged in or not,
@@ -11,6 +13,11 @@ export default function Home() {
   const [messages, userSocket] = useContext(SocketContext);
   console.log(messages, userSocket);
   const router = useRouter();
+  const { data: session, status } = useSession();
+  console.log("session data");
+  console.log(session);
+  console.log("status");
+  console.log(status);
 
   const initGame = () => {
     router.push("/random");
@@ -24,6 +31,15 @@ export default function Home() {
         <button onClick={initGame} className="p-2 bg-slate-700">
           Play Game
         </button>
+        {status === "authenticated" ? (
+          <button onClick={() => signOut()} className="p-2 bg-slate-700">
+            Sign Out
+          </button>
+        ) : (
+          <button onClick={() => signIn()} className="p-2 bg-slate-700">
+            Sign In
+          </button>
+        )}
       </div>
     </div>
   );
