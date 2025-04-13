@@ -5,10 +5,14 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prisma:migrate": "cd ./packages/db && npx prisma migrate dev && cd ../../",
+    "prisma:generate": "cd ./packages/db && npx prisma generate && cd ../../",
+    "prisma:studio": "cd ./packages/db && npx prisma studio && cd ../../"
   },
   "devDependencies": {
     "prettier": "^3.2.5",
+    "prisma": "^6.6.0",
     "turbo": "^2.3.3",
     "typescript": "5.5.4"
   },
@@ -21,6 +25,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@prisma/client": "^6.6.0",
     "@types/chess.js": "^0.13.7",
     "chess.js": "^1.0.0-beta.8"
   }
