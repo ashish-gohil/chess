@@ -1,0 +1,13 @@
+  //Done: Handle how to send moves to backend correctly for both users (black and white)
+  //Done: Handle how to show moves after receiving a response from the backend
+  //Done: Render the chessboard based on the type of user (black user sees black pieces at the bottom, same for white)
+  //Step 1: Add authentication so that only registered users can play
+  //Step 2: Introduce a database to store game moves and games played by users, along with all metadata
+  //Step 3: Introduce a Redis queue and worker (backend) to update data in the database asynchronously and in a decoupled way
+  //Step 4: Deploy the application on a cloud platform (4 services: WebSocket, backend, Redis worker, frontend)
+  //Step 5: Implement frontend checks to ensure users cannot make invalid moves
+  //Step 6: Display results showing who won and who lost
+  //Step 7: Show all previous moves in a dedicated section on the right
+  //Step 8: Display possible moves in the UI when a square is selected
+  //Step 9: Improve the UI with animations for a better user experience
+  //Step 10: Keep all chess-related messages in a package for DRY (Don't Repeat Yourself) principles and reuse them in the frontend, WS, backend

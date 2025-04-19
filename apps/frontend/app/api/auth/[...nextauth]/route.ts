@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@repo/db";
 
 export const authOptions: NextAuthOptions = {
   // pages: {  //this needs to be done if sign and sign out pages are created deifferently
@@ -68,19 +69,40 @@ export const authOptions: NextAuthOptions = {
 
       return token;
     },
-    signIn({ account, profile }) {
-      console.log("this is from signin callback");
-      console.log(account);
-      console.log("///////");
-      console.log(profile);
-      console.log("///////////");
+    signIn: async ({ account, profile }) => {
       if (account?.provider === "google") {
-        console.log(profile);
-        // return (
-        //   profile?.email_verified && profile?.email?.endsWith("@gmail.com")
-        // );
+        const email = profile?.email;
+
+        if (!email) return false; // email is required to proceed
+
+        const existingUser = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (existingUser) {
+          // Update user with latest Google profile data
+          await prisma.user.update({
+            where: { email },
+            data: {
+              name: profile.name,
+
+              username: `${profile?.given_name}_${profile?.family_name}`,
+            },
+          });
+        } else {
+          // Create new user
+          await prisma.user.create({
+            data: {
+              email,
+              name: profile.name || "",
+              username: `${profile.given_name} ${profile.family_name}` || "",
+              provider: "GOOGLE",
+            },
+          });
+        }
       }
-      return true; // Do different verification for other providers that don't have `email_verified`
+
+      return true; // Allow sign in
     },
     session({ session, token, user }) {
       console.log("this is from session callback");
