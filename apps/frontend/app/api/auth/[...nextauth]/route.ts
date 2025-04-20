@@ -2,7 +2,29 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@repo/db";
+import { prisma, User } from "@repo/db";
+import bcrypt from "bcryptjs";
+
+async function checkUser(
+  username: string,
+  password: string
+): Promise<User | null> {
+  //... fetch user from a db etc.
+  const user = await prisma.user.findUnique({
+    where: { username },
+  });
+  if (!user) {
+    return null;
+  } else {
+    //compare password with the hashed password in the db
+    const match = await bcrypt.compare(password, user.password || "");
+    if (match) {
+      return user;
+    } else {
+      return null;
+    }
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   // pages: {  //this needs to be done if sign and sign out pages are created deifferently
@@ -28,18 +50,11 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
         console.log(credentials);
         console.log(req);
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "Ashish", email: "example@gmail.com" };
-
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
+        const user = await checkUser(
+          credentials?.username || "",
+          credentials?.password || ""
+        );
+        return user; // If no error and we have user data, return it
       },
     }),
     GoogleProvider({
@@ -95,11 +110,16 @@ export const authOptions: NextAuthOptions = {
             data: {
               email,
               name: profile.name || "",
-              username: `${profile.given_name} ${profile.family_name}` || "",
+              username: `${profile.given_name}_${profile.family_name}` || "",
               provider: "GOOGLE",
             },
           });
         }
+      } else {
+        console.log("this is from signIn callback is provider is not google");
+        console.log(account);
+        console.log("??????????????????");
+        console.log(profile);
       }
 
       return true; // Allow sign in

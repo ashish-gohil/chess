@@ -40,16 +40,6 @@ export default function ChessBoard() {
   console.log("below are messages from chessboard");
   console.log(messages);
 
-  //handle how to send moves to backend correctly for both user(b+w)
-  //handle how to show moves after receiving response of move from backend
-  //do some frontend checkes so user can not move peice if it is not valid
-  //show results who win and who lose
-  //show all previous moves in right section
-  //show chess board based on type of user(black, white)
-  //show possible moves in UI when square is selected
-  //improve UI with animations
-  //keep all chess messages to in pakage for DRY, and use same in frontend as well
-
   useEffect(() => {
     if (messages) {
       const msgObj = JSON.parse(messages);
@@ -79,8 +69,6 @@ export default function ChessBoard() {
   const handleSquareClick = (square: Square) => {
     if (selected) {
       try {
-        // const move = chess.move({ from: selected, to: square, promotion: "q" });
-        // console.log(move);
         const moveObj = {
           type: "move",
           from: selected,
