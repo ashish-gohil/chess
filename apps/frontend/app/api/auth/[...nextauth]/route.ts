@@ -9,7 +9,6 @@ async function checkUser(
   username: string,
   password: string
 ): Promise<User | null> {
-  //... fetch user from a db etc.
   const user = await prisma.user.findUnique({
     where: { username },
   });
